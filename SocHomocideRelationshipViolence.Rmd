@@ -1,0 +1,81 @@
+---
+title: "Relationship Violence Mini-Project"
+output: pdf_document
+author: Amelia Johnson 
+version: February 25 2017
+---
+
+
+Question: Is romantic relationship violence related to victim age?
+
+In order to answer this question I will need to look at the realtionships between victim age and frequency of homicides where the perpitrator-victim relationship was considered romanitc. To do this I will use a histogram. I am hoping to se a trend or a spike somewhere in the graph that tells me how old most of the victims in romantic relationships were. I am also going to plot the non-romantic relationships vs. frequency as a control. 
+
+```{r}
+#read in data
+setwd("/Users/johnsonam/Documents/Sociology/HomicideProject")
+homicide <- read.csv("HomicideSample.csv", header=TRUE)
+#There are 63533 obs. in homicide
+```
+
+```{r}
+#filter victims for which age is na
+homicide$Victim.Age[homicide$Victim.Age == 99] <- NA
+homicide$Victim.Age[homicide$Victim.Age == 998] <- NA
+```
+
+```{r}
+prop.table(table(homicide$Crime.Solved, homicide$Victim.Sex), 2)
+```
+
+```{r}
+#let's look at the relationship variable
+table(homicide$Relationship)
+```
+
+```{r}
+#make a new data set for romantic relationships
+romantic <-
+  homicide[which (homicide$Relationship == "Husband" | homicide$Relationship == "Wife"|homicide$Relationship == "Common-Law Husband"|homicide$Relationship == "Common-Law Wife"| homicide$Relationship == "Ex-Wife" |homicide$Relationship == "Ex-Husband" | homicide$Relationship == "Boyfriend" | homicide$Relationship == "Girlfriend" | homicide$Relationship == "Boyfriend/Girlfriend"),]
+
+#look at this data set
+str(romantic)
+#There are 6519 obs.
+
+```
+
+```{r}
+
+#make another data set for non- romantic relationships (note: unknown not included)
+plutonic <- 
+  homicide[which (homicide$Relationship == "Acquaintance" | homicide$Relationship == "Son" | homicide$Relationship == "Stranger" | homicide$Relationship == "Daughter" | homicide$Relationship == "Family"| homicide$Relationship == "In-Law"| homicide$Relationship == "Stepdaughter"| homicide$Relationship == "Employee" | homicide$Relationship == "Father" | homicide$Relationship == "Mother" | homicide$Relationship == "Stepfather" | homicide$Relationship == "Brother" | homicide$Relationship == "Employer" | homicide$Relationship == "Friend" | homicide$Relationship == "Neighbor" | homicide$Relationship == "Stepmother" | homicide$Relationship == "Sister" | homicide$Relationship == "Stepson"),]
+
+#look at this data set
+str(plutonic)
+#There are 30068
+```
+Now we can graph the victim age for each data set. 
+
+```{r}
+#we can make two histograms and analyse the images
+#install the ggplot2 package
+library(ggplot2)
+
+#note: values of na will be removed
+ggplot(data=plutonic,aes(Victim.Age)) +
+    geom_histogram(bins = 50,fill=I("blue"),alpha=I(.2))
+ggplot(data=romantic,aes(Victim.Age)) +
+    geom_histogram(bins = 50,fill=I("red"),alpha=I(.2),)
+```
+ We can see from these histograms that romantic relationship usually yeild violence when the victim is slightly older. The romantic data are centered at ~30, whereas the plutonic data are centered at ~20. Also interesting is the second spike in the plutonic data at a very young victim age. We see that these are infants who are killed. We must note that this data set includes sons, daughters, etc. who could be very young victims. This leads us to think that maybe our data show that romantic victims tend to be older simply because romantic relationships do no happen at a very young age for most individuals, which would pull the center down for the plutonic data. However, when we look at the graph, we see that even discounting the left spike, just the right spike in the binary data is still centered at ~20, and the data drop off to the left, indicating that this confounding variable is actually null, and that romantic relationships tend to yeild violence when the victim is older than in non-romantic relationshis. Other variables to consider that were not looked at in this study are sex of the victim and perpitrator, and age of the perpitrator. 
+ 
+Further Question: marriage vs. common-law marriage
+```{r}
+#Are marriages more likely to be violent than common-law marriages?
+married <-
+  homicide[which (homicide$Relationship == "Husband" | homicide$Relationship == "Wife"),]
+str(married)
+commonlaw <- 
+  homicide[which (homicide$Relationship == "Common-Law Husband" | homicide$Relationship == "Common-Law Wife"),]
+str(commonlaw)
+```
+We need to know the proportion of marriages to common-law marriages in the general population. Marriages are more common than common-law marriages, which affects the frequency of homicides in those gorups. 
